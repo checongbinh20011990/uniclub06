@@ -31,12 +31,17 @@ public class CustomAuthenProvider implements AuthenticationProvider {
 
         List<RoleDTO> roleDtos = authenService.checkLogin(authenRequest);
         if(roleDtos.size() > 0){
-            List<GrantedAuthority> authorityList = new ArrayList<>(); //Bữa sau chỉnh lại thành Stream API
+            //streamAPI
+            //map() : Cho phép biến đổi kiểu dữ liệu gốc thành kiểu dữ liệu khác trong quá trình duyệt mảng/doituong
 
-            roleDtos.forEach(roleDTO -> {
-                SimpleGrantedAuthority simpleGrantedAuthority = new SimpleGrantedAuthority(roleDTO.getName());
-                authorityList.add(simpleGrantedAuthority);
-            });
+//            List<GrantedAuthority> authorityList = new ArrayList<>(); //Bữa sau chỉnh lại thành Stream API
+//
+//            roleDtos.forEach(roleDTO -> {
+//                SimpleGrantedAuthority simpleGrantedAuthority = new SimpleGrantedAuthority(roleDTO.getName());
+//                authorityList.add(simpleGrantedAuthority);
+//            });
+             List<SimpleGrantedAuthority> authorityList = roleDtos.stream()
+                     .map(item -> new SimpleGrantedAuthority(item.getName())).toList();
 
             return new UsernamePasswordAuthenticationToken("","",authorityList);
         }else{

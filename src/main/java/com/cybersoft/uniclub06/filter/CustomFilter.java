@@ -43,11 +43,14 @@ public class CustomFilter extends OncePerRequestFilter {
                 List<AuthorityDTO> authorityDTOS = objectMapper.readValue(data, new TypeReference<List<AuthorityDTO>>() {
                 });
 
-                List<GrantedAuthority> authorityList = new ArrayList<>();
-                authorityDTOS.forEach(dataDTO ->{
-                    SimpleGrantedAuthority simpleGrantedAuthority = new SimpleGrantedAuthority(dataDTO.getAuthority());
-                    authorityList.add(simpleGrantedAuthority);
-                });
+//                List<GrantedAuthority> authorityList = new ArrayList<>();
+//                authorityDTOS.forEach(dataDTO ->{
+//                    SimpleGrantedAuthority simpleGrantedAuthority = new SimpleGrantedAuthority(dataDTO.getAuthority());
+//                    authorityList.add(simpleGrantedAuthority);
+//                });
+
+                List<SimpleGrantedAuthority> authorityList = authorityDTOS.stream()
+                        .map(item -> new SimpleGrantedAuthority(item.getAuthority())).toList();
 
                 UsernamePasswordAuthenticationToken authenToken =
                         new UsernamePasswordAuthenticationToken("","",authorityList);

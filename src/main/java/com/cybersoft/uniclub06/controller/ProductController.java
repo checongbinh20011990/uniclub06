@@ -1,6 +1,9 @@
 package com.cybersoft.uniclub06.controller;
 
+import com.cybersoft.uniclub06.request.AddProductRequest;
+import com.cybersoft.uniclub06.response.BaseResponse;
 import com.cybersoft.uniclub06.service.FileService;
+import com.cybersoft.uniclub06.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,12 +18,16 @@ import org.springframework.web.multipart.MultipartFile;
 public class ProductController {
 
     @Autowired
-    private FileService fileService;
+    private ProductService productService;
 
     @PostMapping
-    public ResponseEntity<?> addProduct(@RequestParam MultipartFile file){
-        fileService.saveFile(file);
+    public ResponseEntity<?> addProduct(AddProductRequest request){
+        productService.addProduct(request);
 
-        return new ResponseEntity<>("Hello add product", HttpStatus.OK);
+        BaseResponse baseResponse = new BaseResponse();
+        baseResponse.setStatusCode(200);
+        baseResponse.setMessage("Success !");
+
+        return new ResponseEntity<>(baseResponse, HttpStatus.OK);
     }
 }

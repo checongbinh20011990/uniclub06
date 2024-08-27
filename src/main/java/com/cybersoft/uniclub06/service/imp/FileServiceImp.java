@@ -1,8 +1,11 @@
 package com.cybersoft.uniclub06.service.imp;
 
+import com.cybersoft.uniclub06.exception.FileNotFoundException;
 import com.cybersoft.uniclub06.exception.SaveFileException;
 import com.cybersoft.uniclub06.service.FileService;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -30,8 +33,21 @@ public class FileServiceImp implements FileService {
         }catch (Exception e){
             throw new SaveFileException(e.getMessage());
         }
-
-
     }
 
+    @Override
+    public Resource loadFile(String filename) {
+        try{
+            Path rootPath = Paths.get(root);
+            Path file = rootPath.resolve(filename);
+            Resource resource = new UrlResource(file.toUri());
+            if(resource.exists()){
+                return resource;
+            }else{
+                throw new FileNotFoundException();
+            }
+        }catch (Exception e){
+            throw new FileNotFoundException(e.getMessage());
+        }
+    }
 }

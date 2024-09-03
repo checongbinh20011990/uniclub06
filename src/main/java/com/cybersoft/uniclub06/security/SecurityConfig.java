@@ -56,7 +56,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(request -> {
                     request.requestMatchers("/authen","/file/**").permitAll();
-                    request.requestMatchers(HttpMethod.GET,"/product").permitAll();
+                    request.requestMatchers(HttpMethod.GET,"/product/**").permitAll();
                     request.requestMatchers("/product").hasRole("ADMIN");
                     request.anyRequest().authenticated();
                 })

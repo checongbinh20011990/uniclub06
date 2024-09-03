@@ -1,6 +1,8 @@
 package com.cybersoft.uniclub06.service.imp;
 
+import com.cybersoft.uniclub06.dto.ColorDTO;
 import com.cybersoft.uniclub06.dto.ProductDTO;
+import com.cybersoft.uniclub06.dto.SizeDTO;
 import com.cybersoft.uniclub06.entity.*;
 import com.cybersoft.uniclub06.repository.ProductRepository;
 import com.cybersoft.uniclub06.repository.VariantRepository;
@@ -8,10 +10,14 @@ import com.cybersoft.uniclub06.request.AddProductRequest;
 import com.cybersoft.uniclub06.service.FileService;
 import com.cybersoft.uniclub06.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ProductServiceImp implements ProductService {
@@ -61,9 +67,11 @@ public class ProductServiceImp implements ProductService {
     }
 
     @Override
-    public List<ProductDTO> getProduct() {
+    public List<ProductDTO> getProduct(int numPage) {
 //        List<ProductEntity> listProductEntity = productRepository.findAll();
-        return productRepository.findAll().stream().map(item -> {
+        Pageable page = PageRequest.of(numPage,4);
+
+        return productRepository.findAll(page).stream().map(item -> {
             ProductDTO productDTO = new ProductDTO();
             productDTO.setName(item.getName());
             productDTO.setPrice(item.getPrice());
@@ -75,6 +83,48 @@ public class ProductServiceImp implements ProductService {
 
             return productDTO;
         }).toList();
+    }
+
+    @Override
+    public ProductDTO getDetailProduct(int id) {
+        Optional<ProductEntity> optionProductEntity = productRepository.findById(id);
+
+        return optionProductEntity.stream().map(productEntity -> {
+            ProductDTO productDTO = new ProductDTO();
+            productDTO.setId(productEntity.getId());
+            productDTO.setName(productEntity.getName());
+            productDTO.setCategories(productEntity.getProductCategories().stream().map(productCategory ->
+                    productCategory.getCategory().getName()
+            ).toList());
+
+            productDTO.setSizes(productEntity.getVariants().stream().map(variantEntity -> {
+                SizeDTO sizeDTO = new SizeDTO();
+                sizeDTO.setId(variantEntity.getSize().getId());
+                sizeDTO.setName(variantEntity.getSize().getName());
+
+                return sizeDTO;
+            }).toList());
+
+            productDTO.setColors(productEntity.getVariants().stream().map(variantEntity -> {
+                ColorDTO colorDTO = new ColorDTO();
+                colorDTO.setImages(variantEntity.getImages());
+                colorDTO.setName(variantEntity.getColor().getName());
+
+                colorDTO.setSizes(productEntity.getVariants().stream().map(variantEntity1 -> {
+                    SizeDTO sizeDTO = new SizeDTO();
+                    sizeDTO.setId(variantEntity1.getSize().getId());
+                    sizeDTO.setName(variantEntity1.getSize().getName());
+                    sizeDTO.setQuantity(variantEntity1.getQuanity());
+                    sizeDTO.setPrice(variantEntity1.getPrice());
+
+                    return sizeDTO;
+                }).toList());
+
+                return colorDTO;
+            }).toList());
+
+            return productDTO;
+        }).findFirst().orElseThrow(()-> new RuntimeException("Không tìm thấy dữ liệu"));
 
     }
 }

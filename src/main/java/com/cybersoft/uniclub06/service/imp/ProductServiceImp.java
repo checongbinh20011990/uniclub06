@@ -4,7 +4,9 @@ import com.cybersoft.uniclub06.dto.ColorDTO;
 import com.cybersoft.uniclub06.dto.ProductDTO;
 import com.cybersoft.uniclub06.dto.SizeDTO;
 import com.cybersoft.uniclub06.entity.*;
+import com.cybersoft.uniclub06.repository.ColorRepository;
 import com.cybersoft.uniclub06.repository.ProductRepository;
+import com.cybersoft.uniclub06.repository.SizeRepository;
 import com.cybersoft.uniclub06.repository.VariantRepository;
 import com.cybersoft.uniclub06.request.AddProductRequest;
 import com.cybersoft.uniclub06.service.FileService;
@@ -27,6 +29,12 @@ public class ProductServiceImp implements ProductService {
 
     @Autowired
     private VariantRepository variantRepository;
+
+    @Autowired
+    private SizeRepository sizeRepository;
+
+    @Autowired
+    private ColorRepository colorRepository;
 
     @Autowired
     private FileService fileService;
@@ -73,6 +81,7 @@ public class ProductServiceImp implements ProductService {
 
         return productRepository.findAll(page).stream().map(item -> {
             ProductDTO productDTO = new ProductDTO();
+            productDTO.setId(item.getId());
             productDTO.setName(item.getName());
             productDTO.setPrice(item.getPrice());
             if(item.getVariants().size() > 0){
@@ -93,20 +102,39 @@ public class ProductServiceImp implements ProductService {
             ProductDTO productDTO = new ProductDTO();
             productDTO.setId(productEntity.getId());
             productDTO.setName(productEntity.getName());
+            productDTO.setPrice(productEntity.getPrice());
+            productDTO.setOverview(productEntity.getDesc());
             productDTO.setCategories(productEntity.getProductCategories().stream().map(productCategory ->
                     productCategory.getCategory().getName()
             ).toList());
 
-            productDTO.setSizes(productEntity.getVariants().stream().map(variantEntity -> {
+            productDTO.setSizes(sizeRepository.findAll().stream().map(sizeEntity -> {
                 SizeDTO sizeDTO = new SizeDTO();
-                sizeDTO.setId(variantEntity.getSize().getId());
-                sizeDTO.setName(variantEntity.getSize().getName());
+                sizeDTO.setId(sizeEntity.getId());
+                sizeDTO.setName(sizeEntity.getName());
 
                 return sizeDTO;
             }).toList());
 
-            productDTO.setColors(productEntity.getVariants().stream().map(variantEntity -> {
+            productDTO.setColors(colorRepository.findAll().stream().map(colorEntity -> {
                 ColorDTO colorDTO = new ColorDTO();
+                colorDTO.setId(colorEntity.getId());
+                colorDTO.setName(colorEntity.getName());
+
+                return colorDTO;
+            }).toList());
+
+//            productDTO.setSizes(productEntity.getVariants().stream().map(variantEntity -> {
+//                SizeDTO sizeDTO = new SizeDTO();
+//                sizeDTO.setId(variantEntity.getSize().getId());
+//                sizeDTO.setName(variantEntity.getSize().getName());
+//
+//                return sizeDTO;
+//            }).toList());
+
+            productDTO.setPriceColorSize(productEntity.getVariants().stream().map(variantEntity -> {
+                ColorDTO colorDTO = new ColorDTO();
+                colorDTO.setId(variantEntity.getColor().getId());
                 colorDTO.setImages(variantEntity.getImages());
                 colorDTO.setName(variantEntity.getColor().getName());
 
